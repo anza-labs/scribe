@@ -1,0 +1,42 @@
+name: linters
+
+on:
+  pull_request:
+    branches: [ "*" ]
+  push:
+    branches:
+      - "main"
+
+jobs:
+  golangci-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: ./go.mod
+          cache: false
+      - uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          skip-cache: true
+
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: wagoid/commitlint-github-action@v6
+        with:
+          configFile: .commitlintrc.mjs
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  hadolint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          recursive: true
