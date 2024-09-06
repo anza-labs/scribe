@@ -2,7 +2,7 @@ module github.com/anza-labs/scribe
 
 go 1.22.2
 
-toolchain go1.22.6
+toolchain go1.23.1
 
 require (
 	k8s.io/api v0.31.0
