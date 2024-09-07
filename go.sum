@@ -1142,8 +1142,8 @@ github.com/theupdateframework/notary v0.7.0 h1:QyagRZ7wlSpjT5N2qQAh/pN+DVqgekv4D
 github.com/theupdateframework/notary v0.7.0/go.mod h1:c9DRxcmhHmVLDay4/2fUYdISnHqbFDGRSlXPO0AhYWw=
 github.com/tilt-dev/clusterid v0.1.4 h1:uQ/oDrFf+5ZPe/qcC4loq78Ri9PvgfTzvtsSxaFdhSI=
 github.com/tilt-dev/clusterid v0.1.4/go.mod h1:MV6q698Z7LEbu9i7p+JwqGsu2EkiiaQViIrL6gd8XiI=
-github.com/tilt-dev/ctlptl v0.8.32 h1:PiBWoUNHbxcOjMbxq9lObejdyArfrCLCOlRX98nwhhI=
-github.com/tilt-dev/ctlptl v0.8.32/go.mod h1:bkYgB4DBcQivHDbJDDSLUh6UFxahzDMtds8U1ElstBo=
+github.com/tilt-dev/ctlptl v0.8.33 h1:tGTnZiTQtDybW3nWRPVRGP+eOvIXuQon2ljBg1V/SDY=
+github.com/tilt-dev/ctlptl v0.8.33/go.mod h1:5Jh9WpusJwVCbLfPmz0n/Ra+eVfHMODflkT6r10PX70=
 github.com/tilt-dev/localregistry-go v0.0.0-20201021185044-ffc4c827f097 h1:CiCHb20O+poFO331eFOiXRscunvAhKBfDmDoY2mf45A=
 github.com/tilt-dev/localregistry-go v0.0.0-20201021185044-ffc4c827f097/go.mod h1:SX7bKYACP+RsddxA+NBkfVzr5DOr5ranTirgT7xlxjA=
 github.com/tilt-dev/wmclient v0.0.0-20201109174454-1839d0355fbc h1:wGkAoZhrvnmq93B4W2v+agiPl7xzqUaxXkxmKrwJ6bc=
@@ -1949,8 +1949,8 @@ k8s.io/apimachinery v0.31.0/go.mod h1:rsPdaZJfTfLsNJSQzNHQvYoTmxhoOEofxtOsF3rtsM
 k8s.io/apiserver v0.31.0 h1:p+2dgJjy+bk+B1Csz+mc2wl5gHwvNkC9QJV+w55LVrY=
 k8s.io/apiserver v0.31.0/go.mod h1:KI9ox5Yu902iBnnyMmy7ajonhKnkeZYJhTZ/YI+WEMk=
 k8s.io/cli-runtime v0.18.4/go.mod h1:9/hS/Cuf7NVzWR5F/5tyS6xsnclxoPLVtwhnkJG1Y4g=
-k8s.io/cli-runtime v0.30.3 h1:aG69oRzJuP2Q4o8dm+f5WJIX4ZBEwrvdID0+MXyUY6k=
-k8s.io/cli-runtime v0.30.3/go.mod h1:hwrrRdd9P84CXSKzhHxrOivAR9BRnkMt0OeP5mj7X30=
+k8s.io/cli-runtime v0.31.0 h1:V2Q1gj1u3/WfhD475HBQrIYsoryg/LrhhK4RwpN+DhA=
+k8s.io/cli-runtime v0.31.0/go.mod h1:vg3H94wsubuvWfSmStDbekvbla5vFGC+zLWqcf+bGDw=
 k8s.io/client-go v0.18.4/go.mod h1:f5sXwL4yAZRkAtzOxRWUhA/N8XzGCb+nPZI8PfobZ9g=
 k8s.io/client-go v0.31.0 h1:QqEJzNjbN2Yv1H79SsS+SWnXkBgVu4Pj3CJQgbx0gI8=
 k8s.io/client-go v0.31.0/go.mod h1:Y9wvC76g4fLjmU0BA+rV+h2cncoadjvjjkkIGoTLcGU=
