@@ -340,7 +340,7 @@ require (
 	honnef.co/go/tools v0.4.7 // indirect
 	k8s.io/apiextensions-apiserver v0.31.0 // indirect
 	k8s.io/apiserver v0.31.0 // indirect
-	k8s.io/cli-runtime v0.30.3 // indirect
+	k8s.io/cli-runtime v0.31.0 // indirect
 	k8s.io/component-base v0.31.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20240827152857-f7e401e7b4c2 // indirect
 	k8s.io/utils v0.0.0-20240821151609-f90d01438635 // indirect
@@ -360,7 +360,7 @@ require (
 require (
 	github.com/golangci/golangci-lint v1.59.1
 	github.com/kyverno/chainsaw v0.2.9
-	github.com/tilt-dev/ctlptl v0.8.32
+	github.com/tilt-dev/ctlptl v0.8.33
 	sigs.k8s.io/controller-tools v0.16.2
 	sigs.k8s.io/kind v0.24.0
 	sigs.k8s.io/kustomize/kustomize/v5 v5.4.2
