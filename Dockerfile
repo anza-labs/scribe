@@ -1,4 +1,5 @@
 # Easy crosscomple toolkit
+# hadolint ignore=DL3006
 FROM --platform=$BUILDPLATFORM tonistiigi/xx AS xx
 
 # Build the manager binary
@@ -18,7 +19,7 @@ RUN xx-go mod download
 
 # Copy the go source
 COPY cmd/main.go cmd/main.go
-COPY internal/controller/ internal/controller/
+COPY internal/ internal/
 
 # Build
 ENV CGO_ENABLED=0

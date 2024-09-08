@@ -18,7 +18,7 @@ linters:
   enable:
     - dupl
     - errcheck
-    - exportloopref
+    - gci
     - ginkgolinter
     - goconst
     - gocyclo
@@ -40,6 +40,19 @@ linters:
     - unused
 
 linters-settings:
+  gci:
+    sections:
+      - standard
+      - default
+      - blank
+      - dot
+      - prefix(k8s.io,sigs.k8s.io)
+      - prefix(github.com/anza-labs)
+
+  nolintlint:
+    require-explanation: true
+    require-specific: true
+
   revive:
     rules:
       - name: comment-spacings

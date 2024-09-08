@@ -21,22 +21,21 @@ import (
 	"flag"
 	"os"
 
-	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
-	// to ensure that exec-entrypoint and run can make use of them.
-	_ "k8s.io/client-go/plugin/pkg/client/auth"
-	"k8s.io/klog/v2"
+	"github.com/anza-labs/scribe/internal/config"
+	"github.com/anza-labs/scribe/internal/controller"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/metrics/filters"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	yaml "sigs.k8s.io/yaml/goyaml.v3"
 
-	"github.com/anza-labs/scribe/internal/controller"
-	// +kubebuilder:scaffold:imports
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
 var (
@@ -57,6 +56,7 @@ func main() {
 	var secureMetrics bool
 	var enableHTTP2 bool
 	var tlsOpts []func(*tls.Config)
+	var configPath string
 	flag.StringVar(&metricsAddr, "metrics-bind-address", "0", "The address the metrics endpoint binds to. "+
 		"Use :8443 for HTTPS or :8080 for HTTP, or leave as 0 to disable the metrics service.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
@@ -67,6 +67,8 @@ func main() {
 		"If set, the metrics endpoint is served securely via HTTPS. Use --metrics-secure=false to use HTTP instead.")
 	flag.BoolVar(&enableHTTP2, "enable-http2", false,
 		"If set, HTTP/2 will be enabled for the metrics and webhook servers")
+	flag.StringVar(&configPath, "config-path", "config.yaml", "Path to the configuration file containing apiVersion"+
+		"and kind definitions for observed resources.")
 	klog.InitFlags(nil)
 	flag.Parse()
 
@@ -115,6 +117,21 @@ func main() {
 		metricsServerOptions.FilterProvider = filters.WithAuthenticationAndAuthorization
 	}
 
+	f, err := os.Open(configPath)
+	if err != nil {
+		setupLog.Error(err, "Unable to open the config file")
+		os.Exit(1)
+	}
+	defer f.Close() //nolint:errcheck // best effort close
+
+	cfg := &config.Config{}
+
+	err = yaml.NewDecoder(f).Decode(cfg)
+	if err != nil {
+		setupLog.Error(err, "Unable to decode the config file")
+		os.Exit(1)
+	}
+
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
 		Metrics:                metricsServerOptions,
@@ -128,26 +145,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controller.DeploymentReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "Unable to create controller", "controller", "Deployment")
-		os.Exit(1)
-	}
-	if err = (&controller.StatefulSetReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "Unable to create controller", "controller", "StatefulSet")
-		os.Exit(1)
-	}
-	if err = (&controller.DaemonSetReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "Unable to create controller", "controller", "DaemonSet")
-		os.Exit(1)
+	for _, t := range cfg.Types {
+		t := t
+
+		if err = (&controller.UnstructuredReconciler{
+			Client: mgr.GetClient(),
+			Scheme: mgr.GetScheme(),
+		}).SetupWithManager(mgr, t.GroupVersionKind()); err != nil {
+			setupLog.Error(err, "unable to create controller", "controller", "Unstructured")
+			os.Exit(1)
+		}
 	}
 	// +kubebuilder:scaffold:builder
 

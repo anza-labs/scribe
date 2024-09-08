@@ -7,26 +7,46 @@ spec:
   steps:
   - name: "foo"
     try:
-    - apply:
-        resource:
-          apiVersion: batch/v1
-          kind: Job
-          metadata:
-            name: myjob
-          spec:
-            ttlSecondsAfterFinished: 100
-            template:
-              spec:
-                containers:
-                - name: pi
-                  image: perl
-                  command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
-                restartPolicy: Never
     - assert:
         resource:
-          apiVersion: batch/v1
-          kind: Job
+          apiVersion: apps/v1
+          kind: Deployment
           metadata:
-            name: myjob
+            name: scribe-controller-manager
+            namespace: scribe-system
           status:
-            succeeded: 1
+            availableReplicas: 1
+    - apply:
+        resource:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: ($namespace)
+            annotations:
+              scribe.anza-labs.dev/annotations: foo=bar
+    - apply:
+        resource:
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: test
+          spec:
+            selector:
+              matchLabels:
+                app: test
+            template:
+              metadata:
+                labels:
+                  app: test
+              spec:
+                containers:
+                - name: test
+                  image: nginx
+    - assert:
+        resource:
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: test
+            annotations:
+              foo: bar

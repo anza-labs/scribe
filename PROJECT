@@ -9,18 +9,8 @@ projectName: scribe
 repo: github.com/anza-labs/scribe
 resources:
 - controller: true
-  group: apps
-  kind: Deployment
-  path: k8s.io/api/apps/v1
-  version: v1
-- controller: true
-  group: apps
-  kind: Statefulset
-  path: k8s.io/api/apps/v1
-  version: v1
-- controller: true
-  group: apps
-  kind: DaemonSet
-  path: k8s.io/api/apps/v1
+  group: unstructured
+  kind: Unstructured
+  path: k8s.io/apimachinery/pkg/apis/meta/v1/unstructured
   version: v1
 version: "3"

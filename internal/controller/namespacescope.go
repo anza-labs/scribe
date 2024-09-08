@@ -18,6 +18,9 @@ package controller
 
 import (
 	"context"
+	"fmt"
+	"maps"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -30,11 +33,6 @@ import (
 // +kubebuilder:rbac:groups=core,resources=namespaces,verbs=get;list;watch
 
 const (
-	enabledForAnnotation   = "scribe.anza-labs.dev/enabled-for"
-	enabledForDaemonSets   = "daemonsets.apps"
-	enabledForDeployments  = "deployments.apps"
-	enabledForStatefulSets = "statefulsets.apps"
-
 	annotationsAnnotation = "scribe.anza-labs.dev/annotations"
 )
 
@@ -44,7 +42,10 @@ type lister interface {
 
 func mapFunc(l lister) func(ctx context.Context, obj client.Object) []reconcile.Request {
 	return func(ctx context.Context, obj client.Object) []reconcile.Request {
-		log := log.FromContext(ctx, "namespace", klog.KObj(obj))
+		log := log.FromContext(ctx,
+			"group_version_kind", (&corev1.Namespace{}).GroupVersionKind(),
+			"namespaced_name", klog.KObj(obj),
+		)
 
 		namespace := obj.GetName()
 
@@ -85,11 +86,50 @@ func NewNamespaceScope(c client.Client, ns string) *NamespaceScope {
 func (ss *NamespaceScope) UpdateAnnotations(ctx context.Context, annotations map[string]string) (map[string]string, error) {
 	ns := &corev1.Namespace{}
 
+	results := map[string]string{}
+	maps.Copy(results, annotations)
+
 	if err := ss.Get(ctx, ss.namespace, ns); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to get namespace: %w", err)
 	}
 
-	// TODO: parse annotations
+	s, ok := ns.Annotations[annotationsAnnotation]
+	if !ok {
+		return results, nil
+	}
 
-	return annotations, nil
+	for k, v := range parseAnnotations(s) {
+		results[k] = v
+	}
+
+	return results, nil
+}
+
+// parseAnnotations parses key-value pairs from a string input and returns a map.
+func parseAnnotations(input string) map[string]string {
+	result := make(map[string]string)
+
+	// Normalize the string by replacing newlines and whitespace followed by commas
+	input = strings.ReplaceAll(input, ",\n", ",")
+	input = strings.ReplaceAll(input, "\n", ",")
+	input = strings.TrimSpace(input)
+
+	// Split by comma to get individual key=value pairs
+	pairs := strings.Split(input, ",")
+
+	for _, pair := range pairs {
+		pair = strings.TrimSpace(pair)
+		if pair == "" {
+			continue
+		}
+		// Split by equal sign to get key and value
+		kv := strings.SplitN(pair, "=", 2)
+		if len(kv) == 2 {
+			key := strings.TrimSpace(kv[0])
+			value := strings.TrimSpace(kv[1])
+			result[key] = value
+		}
+	}
+
+	return result
 }
