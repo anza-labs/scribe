@@ -2,13 +2,13 @@ name: linters
 
 on:
   pull_request:
-    branches: [ "*" ]
+    branches: [ '*' ]
   push:
     branches:
       - "main"
 
 jobs:
-  golangci-lint:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,10 +16,15 @@ jobs:
         with:
           go-version-file: ./go.mod
           cache: false
-      - uses: golangci/golangci-lint-action@v6
-        with:
-          version: latest
-          skip-cache: true
+      - run: |
+          make lint
+
+  hadolint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          make hadolint
 
   commitlint:
     runs-on: ubuntu-latest
@@ -31,12 +36,3 @@ jobs:
         with:
           configFile: .commitlintrc.mjs
           token: ${{ secrets.GITHUB_TOKEN }}
-
-  hadolint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: hadolint/hadolint-action@v3.1.0
-        with:
-          dockerfile: Dockerfile
-          recursive: true

@@ -1,5 +1,5 @@
 # Easy crosscomple toolkit
-FROM --platform=$BUILDPLATFORM tonistiigi/xx AS xx
+FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.5.0 AS xx
 
 # Build the manager binary
 FROM --platform=$BUILDPLATFORM docker.io/library/golang:1.23 AS builder
@@ -18,7 +18,7 @@ RUN xx-go mod download
 
 # Copy the go source
 COPY cmd/main.go cmd/main.go
-COPY internal/controller/ internal/controller/
+COPY internal/ internal/
 
 # Build
 ENV CGO_ENABLED=0

@@ -1,8 +1,11 @@
 resources:
 - manager.yaml
+- config_map.yaml
+- role.yaml
+- role_binding.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 images:
 - name: controller
-  newName: ghcr.io/anza-labs/scribe
-  newTag: main
+  newName: localhost:5005/manager
+  newTag: e2e

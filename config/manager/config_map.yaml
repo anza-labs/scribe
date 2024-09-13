@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: manager-config
+data:
+  config.yaml: |
+    ---
+    types:
+    - apiVersion: apps/v1
+      kind: Deployment
+    - apiVersion: apps/v1
+      kind: DaemonSet
+    - apiVersion: apps/v1
+      kind: StatefulSet
