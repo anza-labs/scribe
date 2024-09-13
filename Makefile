@@ -75,6 +75,10 @@ lint: golangci-lint ## Run golangci-lint linter
 lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
 	$(GOLANGCI_LINT) run --fix
 
+.PHONY: hadolint
+hadolint: ## Run hadolint on Dockerfile
+	$(CONTAINER_TOOL) run --rm -i hadolint/hadolint < Dockerfile
+
 ##@ Build
 
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
