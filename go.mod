@@ -18,7 +18,7 @@ require (
 	github.com/golangci/golangci-lint v1.61.0
 	github.com/kyverno/chainsaw v0.2.9
 	github.com/tilt-dev/ctlptl v0.8.33
-	sigs.k8s.io/controller-tools v0.16.2
+	sigs.k8s.io/controller-tools v0.16.3
 	sigs.k8s.io/kind v0.24.0
 	sigs.k8s.io/kustomize/kustomize/v5 v5.4.3
 )
