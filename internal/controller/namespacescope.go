@@ -36,10 +36,13 @@ const (
 	annotationsAnnotation = "scribe.anza-labs.dev/annotations"
 )
 
+// lister is an interface that defines the listObjects method which returns a list of namespaced names.
 type lister interface {
 	listObjects(context.Context, string) ([]types.NamespacedName, error)
 }
 
+// mapFunc returns a function that triggers a reconcile request based on the provided lister.
+// It logs the namespace details and returns reconcile requests for each object in the namespace.
 func mapFunc(l lister) func(ctx context.Context, obj client.Object) []reconcile.Request {
 	return func(ctx context.Context, obj client.Object) []reconcile.Request {
 		log := log.FromContext(ctx,
@@ -65,13 +68,14 @@ func mapFunc(l lister) func(ctx context.Context, obj client.Object) []reconcile.
 	}
 }
 
-// NamespaceScope
+// NamespaceScope defines the scope of operations for a specific namespace.
+// It contains the client to interact with the Kubernetes API and the namespace name.
 type NamespaceScope struct {
 	client.Client
 	namespace types.NamespacedName
 }
 
-// NewNamespaceScope
+// NewNamespaceScope creates a new instance of NamespaceScope for the given namespace name.
 func NewNamespaceScope(c client.Client, ns string) *NamespaceScope {
 	return &NamespaceScope{
 		Client: c,
@@ -82,8 +86,12 @@ func NewNamespaceScope(c client.Client, ns string) *NamespaceScope {
 	}
 }
 
-// UpdateAnnotations
-func (ss *NamespaceScope) UpdateAnnotations(ctx context.Context, annotations map[string]string) (map[string]string, error) {
+// UpdateAnnotations updates the annotations of a namespace.
+// It merges the new annotations with existing ones.
+func (ss *NamespaceScope) UpdateAnnotations(
+	ctx context.Context,
+	annotations map[string]string,
+) (map[string]string, error) {
 	ns := &corev1.Namespace{}
 
 	results := map[string]string{}
@@ -105,7 +113,9 @@ func (ss *NamespaceScope) UpdateAnnotations(ctx context.Context, annotations map
 	return results, nil
 }
 
-// parseAnnotations parses key-value pairs from a string input and returns a map.
+// parseAnnotations parses a string containing key-value pairs into a map.
+// The input string should be formatted as comma-separated key=value pairs.
+// Newline characters are treated as commas for parsing.
 func parseAnnotations(input string) map[string]string {
 	result := make(map[string]string)
 
