@@ -18,10 +18,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: semver_parser
-        uses: booxmedialtd/ws-action-parse-semver@v1
+        uses: release-kit/semver@v2
         with:
-          input_string: ${{ github.ref_name }}
-          version_extractor_regex: '^v(.*)$'
+          string: ${{ github.ref_name }}
       - id: changelog
         uses: requarks/changelog-action@v1
         with:
