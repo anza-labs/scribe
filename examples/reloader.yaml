@@ -5,7 +5,7 @@ metadata:
   name: reloader-example
   annotations:
     # annotations below will be propagated to all resources
-    # managed by the scribe controller
+    # observed by the scribe controller
     scribe.anza-labs.dev/annotations: |
       reloader.stakater.com/auto=true
 ---
