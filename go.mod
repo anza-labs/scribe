@@ -16,7 +16,7 @@ require (
 // tools
 require (
 	github.com/golangci/golangci-lint v1.61.0
-	github.com/kyverno/chainsaw v0.2.9
+	github.com/kyverno/chainsaw v0.2.10
 	github.com/tilt-dev/ctlptl v0.8.34
 	sigs.k8s.io/controller-tools v0.16.3
 	sigs.k8s.io/kind v0.24.0
@@ -178,6 +178,7 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/jstemmer/go-junit-report/v2 v2.1.0 // indirect
 	github.com/julz/importas v0.1.0 // indirect
 	github.com/karamaru-alpha/copyloopvar v1.1.0 // indirect
 	github.com/kisielk/errcheck v1.7.0 // indirect
