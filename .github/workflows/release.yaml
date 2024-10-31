@@ -59,3 +59,11 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.event.repository.owner.name }}/scribe:${{ github.ref_name }}
+          labels: |
+            org.opencontainers.image.title="scribe"
+            org.opencontainers.image.authors="anza-labs contributors"
+            org.opencontainers.image.vendor="anza-labs"
+            org.opencontainers.image.license="Apache-2.0"
+            org.opencontainers.image.source="https://github.com/anza-labs/scribe"
+            org.opencontainers.image.base.name="gcr.io/distroless/static:nonroot"
+            org.opencontainers.image.created=${{ github.event.created_at }}
