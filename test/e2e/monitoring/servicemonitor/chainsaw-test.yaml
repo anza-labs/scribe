@@ -19,80 +19,152 @@ spec:
 
   - name: Create Service with scrape annotation
     try:
-      - create:
-          resource:
-            apiVersion: v1
-            kind: Service
-            metadata:
-              name: test-svc-default
-              annotations:
-                prometheus.io/scrape: 'true'
-            spec:
-              selector:
-                app: test
-              ports:
-              - port: 8080
-                targetPort: 8080
+    - create:
+        resource:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: test-svc-default
+            annotations:
+              prometheus.io/scrape: 'true'
+            labels:
+              monitor: test
+          spec:
+            selector:
+              app: test
+            ports:
+            - port: web
+              targetPort: 8080
   - name: Validate if a ServiceMonitor from Service with scrape annotation is created
     try:
+    - assert:
+        resource:
+          apiVersion: monitoring.coreos.com/v1
+          kind: ServiceMonitor
+          metadata:
+            name: test-svc-default
+            labels:
+              monitor: test
+          spec:
+            selector:
+              matchLabels:
+                app: test
+            endpoints:
+            - port: web
+              targetPort: 8080
+              path: '/metrics'
 
   - name: Create Service with scrape and path annotations
     try:
-      - create:
-          resource:
-            apiVersion: v1
-            kind: Service
-            metadata:
-              name: test-svc-path
-              annotations:
-                prometheus.io/scrape: 'true'
-                prometheus.io/path: '/foo/metrics'
-            spec:
-              selector:
-                app: test
-              ports:
-              - port: 8080
-                targetPort: 8080
+    - create:
+        resource:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: test-svc-path
+            annotations:
+              prometheus.io/scrape: 'true'
+              prometheus.io/path: '/foo/metrics'
+            labels:
+              monitor: test
+          spec:
+            selector:
+              app: test
+            ports:
+            - port: web
+              targetPort: 8080
   - name: Validate if a ServiceMonitor from Service with scrape and path annotations is created
     try:
+    - assert:
+        resource:
+          apiVersion: monitoring.coreos.com/v1
+          kind: ServiceMonitor
+          metadata:
+            name: test-svc-path
+            labels:
+              monitor: test
+          spec:
+            selector:
+              matchLabels:
+                app: test
+            endpoints:
+            - port: web
+              targetPort: 8080
+              path: '/foo/metrics'
 
   - name: Create Service with scrape and port annotations
     try:
-      - create:
-          resource:
-            apiVersion: v1
-            kind: Service
-            metadata:
-              name: test-svc-port
-              annotations:
-                prometheus.io/scrape: 'true'
-                prometheus.io/port: '9023'
-            spec:
-              selector:
-                app: test
-              ports:
-              - port: 9023
-                targetPort: 9023
+    - create:
+        resource:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: test-svc-port
+            annotations:
+              prometheus.io/scrape: 'true'
+              prometheus.io/port: 'custom'
+          spec:
+            selector:
+              app: test
+            ports:
+            - port: web
+              targetPort: 8080
+            - port: custom
+              targetPort: 9023
   - name: Validate if a ServiceMonitor from Service with scrape and port annotations is created
     try:
+    - assert:
+        resource:
+          apiVersion: monitoring.coreos.com/v1
+          kind: ServiceMonitor
+          metadata:
+            name: test-svc-port
+            labels:
+              monitor: test
+          spec:
+            selector:
+              matchLabels:
+                app: test
+            endpoints:
+            - port: custom
+              targetPort: 9023
+              path: '/foo/metrics'
 
   - name: Create Service with all annotations
     try:
-      - create:
-          resource:
-            apiVersion: v1
-            kind: Service
-            metadata:
-              name: test-svc-full
-              annotations:
-                prometheus.io/scrape: 'true'
-                prometheus.io/path: '/foo/metrics'
-                prometheus.io/port: '9023'
-            spec:
-              selector:
-                app: test
-              ports:
-              - port: 9023
-                targetPort: 9023
+    - create:
+        resource:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: test-svc-full
+            annotations:
+              prometheus.io/scrape: 'true'
+              prometheus.io/path: '/foo/metrics'
+              prometheus.io/port: 'custom'
+          spec:
+            selector:
+              app: test
+            ports:
+            - port: web
+              targetPort: 8080
+            - port: custom
+              targetPort: 9023
   - name: Validate if a ServiceMonitor from Service with all annotations is created
     try:
+    - assert:
+        resource:
+          apiVersion: monitoring.coreos.com/v1
+          kind: ServiceMonitor
+          metadata:
+            name: test-svc-all
+            labels:
+              monitor: test
+          spec:
+            selector:
+              matchLabels:
+                app: test
+            endpoints:
+            - port: custom
+              targetPort: 9023
+              path: '/foo/metrics'
