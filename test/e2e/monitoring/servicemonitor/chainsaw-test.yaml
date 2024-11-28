@@ -1,0 +1,98 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/kyverno/chainsaw/main/.schemas/json/test-chainsaw-v1alpha1.json
+apiVersion: chainsaw.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: podmonitors
+spec:
+  steps:
+  - name: Check if Scribe is installed
+    try:
+    - assert:
+        resource:
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: scribe-controller-manager
+            namespace: scribe-system
+          status:
+            availableReplicas: 1
+
+  - name: Create Service with scrape annotation
+    try:
+      - create:
+          resource:
+            apiVersion: v1
+            kind: Service
+            metadata:
+              name: test-svc-default
+              annotations:
+                prometheus.io/scrape: 'true'
+            spec:
+              selector:
+                app: test
+              ports:
+              - port: 8080
+                targetPort: 8080
+  - name: Validate if a ServiceMonitor from Service with scrape annotation is created
+    try:
+
+  - name: Create Service with scrape and path annotations
+    try:
+      - create:
+          resource:
+            apiVersion: v1
+            kind: Service
+            metadata:
+              name: test-svc-path
+              annotations:
+                prometheus.io/scrape: 'true'
+                prometheus.io/path: '/foo/metrics'
+            spec:
+              selector:
+                app: test
+              ports:
+              - port: 8080
+                targetPort: 8080
+  - name: Validate if a ServiceMonitor from Service with scrape and path annotations is created
+    try:
+
+  - name: Create Service with scrape and port annotations
+    try:
+      - create:
+          resource:
+            apiVersion: v1
+            kind: Service
+            metadata:
+              name: test-svc-port
+              annotations:
+                prometheus.io/scrape: 'true'
+                prometheus.io/port: '9023'
+            spec:
+              selector:
+                app: test
+              ports:
+              - port: 9023
+                targetPort: 9023
+  - name: Validate if a ServiceMonitor from Service with scrape and port annotations is created
+    try:
+
+  - name: Create Service with all annotations
+    try:
+      - create:
+          resource:
+            apiVersion: v1
+            kind: Service
+            metadata:
+              name: test-svc-full
+              annotations:
+                prometheus.io/scrape: 'true'
+                prometheus.io/path: '/foo/metrics'
+                prometheus.io/port: '9023'
+            spec:
+              selector:
+                app: test
+              ports:
+              - port: 9023
+                targetPort: 9023
+  - name: Validate if a ServiceMonitor from Service with all annotations is created
+    try:

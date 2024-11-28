@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx
+        image: docker.io/library/nginx:latest
         resources:
           limits:
             memory: "128Mi"

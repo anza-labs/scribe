@@ -156,6 +156,30 @@ func main() {
 			os.Exit(1)
 		}
 	}
+
+	promscope, err := controller.NewPrometheusScope(mgr.GetClient(), mgr.GetConfig())
+	if err != nil {
+		setupLog.Error(err, "unable to create scoped client", "scope", "Prometheus")
+		os.Exit(1)
+	}
+
+	if err = (&controller.PodReconciler{
+		Client:          mgr.GetClient(),
+		Scheme:          mgr.GetScheme(),
+		PrometheusScope: promscope,
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Pod")
+		os.Exit(1)
+	}
+
+	if err = (&controller.ServiceReconciler{
+		Client:          mgr.GetClient(),
+		Scheme:          mgr.GetScheme(),
+		PrometheusScope: promscope,
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Service")
+		os.Exit(1)
+	}
 	// +kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
