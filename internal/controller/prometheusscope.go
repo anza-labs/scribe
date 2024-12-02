@@ -17,6 +17,8 @@ limitations under the License.
 package controller
 
 import (
+	"errors"
+
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -25,10 +27,15 @@ import (
 // +kubebuilder:rbac:groups=monitoring.coreos.com,resources=servicemonitors,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=monitoring.coreos.com,resources=podmonitors,verbs=get;list;watch;create;update;patch;delete
 
+var ErrPrometheusCRsNotAvailable = errors.New("prometheus custom resources cannot be found on cluster")
+
 const (
-	PrometheusScrapeAnnotation = "prometheus.io/scrape"
-	PrometheusPortAnnotation   = "prometheus.io/port"
-	PrometheusPathAnnotation   = "prometheus.io/path"
+	prometheusScrapeAnnotation = "prometheus.io/scrape"
+	prometheusPortAnnotation   = "prometheus.io/port"
+	prometheusPathAnnotation   = "prometheus.io/path"
+
+	monitorsAnnotation         = "scribe.anza-labs.dev/monitors"
+	monitorsAnnotationDisabled = "disabled"
 )
 
 type PrometheusScope struct {
@@ -45,17 +52,17 @@ func NewPrometheusScope(c client.Client, cfg *rest.Config) (*PrometheusScope, er
 	return &PrometheusScope{
 		Client: c,
 		autoDetect: autoDetect{
-			dcl: dcl,
+			DiscoveryInterface: dcl,
 		},
 	}, nil
 }
 
 type autoDetect struct {
-	dcl discovery.DiscoveryInterface
+	discovery.DiscoveryInterface
 }
 
 func (a *autoDetect) PrometheusCRsAvailability() (bool, error) {
-	apiList, err := a.dcl.ServerGroups()
+	apiList, err := a.ServerGroups()
 	if err != nil {
 		return false, err
 	}
@@ -66,7 +73,7 @@ func (a *autoDetect) PrometheusCRsAvailability() (bool, error) {
 	for i := 0; i < len(apiGroups); i++ {
 		if apiGroups[i].Name == "monitoring.coreos.com" {
 			for _, version := range apiGroups[i].Versions {
-				resources, err := a.dcl.ServerResourcesForGroupVersion(version.GroupVersion)
+				resources, err := a.ServerResourcesForGroupVersion(version.GroupVersion)
 				if err != nil {
 					return false, err
 				}

@@ -34,10 +34,10 @@ func TestTruncate(t *testing.T) {
 		max      int
 	}{
 		{
-			format:   "%s-collector",
+			format:   "%s-object",
 			max:      63,
 			values:   []interface{}{"simplest"},
-			expected: "simplest-collector",
+			expected: "simplest-object",
 			cap:      "the standard case",
 		},
 		{
@@ -48,31 +48,31 @@ func TestTruncate(t *testing.T) {
 			cap:      "first N case",
 		},
 		{
-			format:   "%s-collector",
+			format:   "%s-object",
 			max:      63,
 			values:   []interface{}{"d0c1e62-4d96-11ea-b174-c85b7644b6b5-5d0c1e62-4d96-11ea-b174-c85b7644b6b5"},
-			expected: "d0c1e62-4d96-11ea-b174-c85b7644b6b5-5d0c1e62-4d96-11e-collector",
+			expected: "d0c1e62-4d96-11ea-b174-c85b7644b6b5-5d0c1e62-4d96-11e-object",
 			cap:      "instance + fixed within bounds",
 		},
 		{
-			format:   "%s-%s-collector",
+			format:   "%s-%s-object",
 			max:      63,
 			values:   []interface{}{"d0c1e62", "4d96-11ea-b174-c85b7644b6b5-5d0c1e62-4d96-11ea-b174-c85b7644b6b5"},
-			expected: "4d96-11ea-b174-c85b7644b6b5-5d0c1e62-4d96-11ea-b174--collector",
+			expected: "4d96-11ea-b174-c85b7644b6b5-5d0c1e62-4d96-11ea-b174--object",
 			cap:      "first value gets dropped, second truncated",
 		},
 		{
-			format:   "%s-%s-collector",
+			format:   "%s-%s-object",
 			max:      63,
 			values:   []interface{}{"4d96-11ea-b174-c85b7644b6b5-5d0c1e62-4d96-11ea-b174-c85b7644b6b5", "d0c1e62"},
-			expected: "4d96-11ea-b174-c85b7644b6b5-5d0c1e62-4d96-11e-d0c1e62-collector",
+			expected: "4d96-11ea-b174-c85b7644b6b5-5d0c1e62-4d96-11e-d0c1e62-object",
 			cap:      "first value gets truncated, second added",
 		},
 		{
-			format:   "%d-%s-collector",
+			format:   "%d-%s-object",
 			max:      63,
 			values:   []interface{}{42, "d0c1e62-4d96-11ea-b174-c85b7644b6b5-5d0c1e62-4d96-11ea-b174-c85b7644b6b5"},
-			expected: "42-d0c1e62-4d96-11ea-b174-c85b7644b6b5-5d0c1e62-4d96--collector",
+			expected: "42-d0c1e62-4d96-11ea-b174-c85b7644b6b5-5d0c1e62-4d96--object",
 			cap:      "first value gets passed, second truncated",
 		},
 	} {

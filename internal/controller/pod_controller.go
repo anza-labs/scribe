@@ -18,10 +18,13 @@ package controller
 
 import (
 	"context"
+	"fmt"
 
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
+
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -38,9 +41,33 @@ type PodReconciler struct {
 
 // Reconcile
 func (r *PodReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	log := log.FromContext(ctx,
+		"pod", klog.KRef(req.Namespace, req.Name),
+	)
 
-	// TODO(user): your logic here
+	ok, err := r.PrometheusScope.autoDetect.PrometheusCRsAvailability()
+	if err != nil {
+		return ctrl.Result{}, err
+	} else if !ok {
+		return ctrl.Result{}, ErrPrometheusCRsNotAvailable
+	}
+
+	log.V(2).Info("Reconciling")
+
+	pod := &corev1.Pod{}
+	if err := r.Get(ctx, req.NamespacedName, pod); err != nil {
+		return ctrl.Result{}, fmt.Errorf("unable to get pod: %w", err)
+	}
+
+	// TODO: check if has monitoring enabled
+	// TODO: get all annotation
+
+	isMarkedToBeDeleted := pod.GetDeletionTimestamp() != nil
+	if isMarkedToBeDeleted {
+		// TODO: handle deletion of the adjacent resources
+	}
+
+	// TODO: handle creation/update of the resources
 
 	return ctrl.Result{}, nil
 }

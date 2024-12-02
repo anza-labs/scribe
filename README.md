@@ -302,4 +302,4 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-[license]: https://github.com/registry-operator/registry-operator/blob/main/LICENSE
+[license]: https://github.com/anza-labs/scribe/blob/main/LICENSE

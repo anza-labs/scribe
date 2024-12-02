@@ -17,7 +17,6 @@ limitations under the License.
 // Additional copyrights:
 // Copyright The Jaeger Authors
 
-//nolint:lll // long URLs
 package naming
 
 import (

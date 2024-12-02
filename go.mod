@@ -5,6 +5,7 @@ go 1.23.0
 toolchain go1.23.3
 
 require (
+	dario.cat/mergo v1.0.1
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.78.2
 	github.com/stretchr/testify v1.10.0
 	k8s.io/api v0.31.3
