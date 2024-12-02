@@ -13,4 +13,14 @@ resources:
   kind: Unstructured
   path: k8s.io/apimachinery/pkg/apis/meta/v1/unstructured
   version: v1
+- controller: true
+  group: core
+  kind: Pod
+  path: k8s.io/api/core/v1
+  version: v1
+- controller: true
+  group: core
+  kind: Service
+  path: k8s.io/api/core/v1
+  version: v1
 version: "3"

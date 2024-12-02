@@ -2,10 +2,10 @@
 apiVersion: chainsaw.kyverno.io/v1alpha1
 kind: Test
 metadata:
-  name: quick-start
+  name: annotations
 spec:
   steps:
-  - name: "foo"
+  - name: Check if Scribe is installed
     try:
     - assert:
         resource:
@@ -16,6 +16,8 @@ spec:
             namespace: scribe-system
           status:
             availableReplicas: 1
+  - name: Create annotated Namespace and test Deployment
+    try:
     - apply:
         resource:
           apiVersion: v1
@@ -41,7 +43,9 @@ spec:
               spec:
                 containers:
                 - name: test
-                  image: nginx
+                  image: docker.io/library/nginx:latest
+  - name: Validate if the annotation is propagated
+    try:
     - assert:
         resource:
           apiVersion: apps/v1

@@ -5,6 +5,9 @@ go 1.23.0
 toolchain go1.23.3
 
 require (
+	dario.cat/mergo v1.0.1
+	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.78.2
+	github.com/stretchr/testify v1.10.0
 	k8s.io/api v0.31.3
 	k8s.io/apimachinery v0.31.3
 	k8s.io/client-go v0.31.3
@@ -95,7 +98,7 @@ require (
 	github.com/docker/go v1.5.1-1.0.20160303222718-d30aec9fd63c // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-metrics v0.0.1 // indirect
-	github.com/docker/go-units v0.4.0 // indirect
+	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dustinkirkland/golang-petname v0.0.0-20240428194347-eebcea082ee0 // indirect
 	github.com/emicklei/go-restful/v3 v3.12.1 // indirect
 	github.com/ettle/strcase v0.2.0 // indirect
@@ -227,6 +230,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.3-0.20211202183452-c5a74bcca799 // indirect
+	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
@@ -235,9 +239,9 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/polyfloyd/go-errorlint v1.7.0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20220216144756-c35f1ee13d7c // indirect
-	github.com/prometheus/client_golang v1.20.4 // indirect
+	github.com/prometheus/client_golang v1.20.5 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
-	github.com/prometheus/common v0.59.1 // indirect
+	github.com/prometheus/common v0.60.1 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/quasilyte/go-ruleguard v0.4.3-0.20240823090925-0fe6f58b47b1 // indirect
 	github.com/quasilyte/go-ruleguard/dsl v0.3.22 // indirect
@@ -274,7 +278,6 @@ require (
 	github.com/stbenjam/no-sprintf-host-port v0.1.1 // indirect
 	github.com/stoewer/go-strcase v1.3.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
-	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/tdakkota/asciicheck v0.2.0 // indirect
 	github.com/tetafro/godot v1.4.18 // indirect
@@ -343,13 +346,14 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20240903143218-8af14fe29dc1 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 // indirect
 	google.golang.org/grpc v1.67.0 // indirect
-	google.golang.org/protobuf v1.34.2 // indirect
+	google.golang.org/protobuf v1.35.1 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.12.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gotest.tools/v3 v3.5.1 // indirect
 	honnef.co/go/tools v0.5.1 // indirect
 	k8s.io/apiextensions-apiserver v0.31.2 // indirect
 	k8s.io/apiserver v0.31.2 // indirect

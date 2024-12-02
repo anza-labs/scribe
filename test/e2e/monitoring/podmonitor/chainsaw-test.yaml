@@ -1,0 +1,127 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/kyverno/chainsaw/main/.schemas/json/test-chainsaw-v1alpha1.json
+apiVersion: chainsaw.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: podmonitors
+spec:
+  steps:
+  - name: Check if Scribe is installed
+    try:
+    - assert:
+        resource:
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: scribe-controller-manager
+            namespace: scribe-system
+          status:
+            availableReplicas: 1
+
+  - name: Create Pod with scrape annotation
+    try:
+    - create:
+        resource:
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: test-pod-default
+            annotations:
+              prometheus.io/scrape: 'true'
+          spec:
+            containers:
+            - name: test
+              image: docker.io/library/nginx:latest
+  - name: Validate if a PodMonitor from Pod with scrape annotation is created
+    try:
+    - assert:
+        resource:
+
+  - name: Create Pod with scrape and path annotations
+    try:
+    - create:
+        resource:
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: test-pod-path
+            annotations:
+              prometheus.io/scrape: 'true'
+              prometheus.io/path: '/foo/metrics'
+          spec:
+            containers:
+            - name: test
+              image: docker.io/library/nginx:latest
+  - name: Validate if a PodMonitor from Pod with scrape and path annotations is created
+    try:
+    - assert:
+        resource:
+
+  - name: Create Pod with scrape and port annotations
+    try:
+    - create:
+        resource:
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: test-pod-port
+            annotations:
+              prometheus.io/scrape: 'true'
+              prometheus.io/port: '9023'
+          spec:
+            containers:
+            - name: test
+              image: docker.io/library/nginx:latest
+  - name: Validate if a PodMonitor from Pod with scrape and port annotations is created
+    try:
+    - assert:
+        resource:
+
+  - name: Create Pod with all annotations
+    try:
+    - create:
+        resource:
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: test-pod-full
+            annotations:
+              prometheus.io/scrape: 'true'
+              prometheus.io/path: '/foo/metrics'
+              prometheus.io/port: '9023'
+          spec:
+            containers:
+            - name: test
+              image: docker.io/library/nginx:latest
+  - name: Validate if a PodMonitor from Pod with all annotations is created
+    try:
+    - assert:
+        resource:
+
+  - name: Create Deployment with all annotations
+    try:
+    - create:
+        resource:
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: test-deployment-full
+          spec:
+            selector:
+              matchLabels:
+                app: test
+            template:
+              metadata:
+                labels:
+                  app: test
+                annotations:
+                  prometheus.io/scrape: 'true'
+                  prometheus.io/path: '/foo/metrics'
+                  prometheus.io/port: '9023'
+              spec:
+                containers:
+                - name: test
+                  image: docker.io/library/nginx:latest
+  - name: Validate if a single PodMonitor from Pods created by Deployment with all annotations is created
+    try:
+    - assert:
+        resource:

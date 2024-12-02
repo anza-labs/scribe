@@ -8,7 +8,22 @@ rules:
   - ""
   resources:
   - namespaces
+  - pods
+  - services
   verbs:
   - get
   - list
+  - watch
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - podmonitors
+  - servicemonitors
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
   - watch
