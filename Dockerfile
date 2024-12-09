@@ -1,5 +1,5 @@
 # Easy crosscomple toolkit
-FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.5.0 AS xx
+FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.6.0 AS xx
 
 # Build the manager binary
 FROM --platform=$BUILDPLATFORM docker.io/library/golang:1.23 AS builder
