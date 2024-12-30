@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"maps"
+	"slices"
 	"strings"
 
 	corev1 "k8s.io/api/core/v1"
@@ -33,7 +34,8 @@ import (
 // +kubebuilder:rbac:groups=core,resources=namespaces,verbs=get;list;watch
 
 const (
-	annotationsAnnotation = "scribe.anza-labs.dev/annotations"
+	annotations            = "scribe.anza-labs.dev/annotations"
+	lastAppliedAnnotations = "scribe.anza-labs.dev/last-applied-annotations"
 )
 
 // lister is an interface that defines the listObjects method which returns a list of namespaced names.
@@ -87,36 +89,49 @@ func NewNamespaceScope(c client.Client, ns string) *NamespaceScope {
 }
 
 // UpdateAnnotations updates the annotations of a namespace.
-// It merges the new annotations with existing ones.
+// It synchronizes annotations with the new ones, removes missing ones, and tracks last-applied annotations.
 func (ss *NamespaceScope) UpdateAnnotations(
 	ctx context.Context,
-	annotations map[string]string,
+	objAnnotations map[string]string,
 ) (map[string]string, error) {
 	ns := &corev1.Namespace{}
-
-	results := map[string]string{}
-	maps.Copy(results, annotations)
 
 	if err := ss.Get(ctx, ss.namespace, ns); err != nil {
 		return nil, fmt.Errorf("unable to get namespace: %w", err)
 	}
 
-	s, ok := ns.Annotations[annotationsAnnotation]
-	if !ok {
-		return results, nil
-	}
+	// Retrieve expected and last-applied annotations
+	expected := unmarshalAnnotations(ns.Annotations[annotations])
+	lastApplied := unmarshalAnnotations(objAnnotations[lastAppliedAnnotations])
 
-	for k, v := range parseAnnotations(s) {
+	// Calculate the resulting annotations
+	results := make(map[string]string)
+	maps.Copy(results, objAnnotations) // Start with current annotations
+
+	// Add/Update new annotations
+	for k, v := range expected {
 		results[k] = v
 	}
 
-	return results, nil
+	// Remove annotations that were in last-applied but are missing in newAnnotations
+	for k := range lastApplied {
+		if _, exists := expected[k]; !exists {
+			delete(results, k)
+		}
+	}
+
+	final := make(map[string]string)
+	maps.Copy(final, results)
+	delete(results, lastAppliedAnnotations)
+	final[lastAppliedAnnotations] = marshalAnnotations(results)
+
+	return final, nil
 }
 
-// parseAnnotations parses a string containing key-value pairs into a map.
+// unmarshalAnnotations parses a string containing key-value pairs into a map.
 // The input string should be formatted as comma-separated key=value pairs.
 // Newline characters are treated as commas for parsing.
-func parseAnnotations(input string) map[string]string {
+func unmarshalAnnotations(input string) map[string]string {
 	result := make(map[string]string)
 
 	// Normalize the string by replacing newlines and whitespace followed by commas
@@ -142,4 +157,32 @@ func parseAnnotations(input string) map[string]string {
 	}
 
 	return result
+}
+
+// marshalAnnotations converts a map into a formatted string of key-value pairs.
+// The output string will be formatted as comma-separated key=value pairs,
+// with each pair appearing on a new line for readability. The keys are sorted.
+func marshalAnnotations(annotations map[string]string) string {
+	var builder strings.Builder
+
+	// Collect keys into a slice
+	keys := make([]string, 0, len(annotations))
+	for key := range annotations {
+		keys = append(keys, key)
+	}
+
+	// Sort the keys
+	slices.Sort(keys)
+
+	// Iterate over the sorted keys and build the result string
+	for i, key := range keys {
+		if i > 0 {
+			builder.WriteString(",\n")
+		}
+		builder.WriteString(key)
+		builder.WriteString("=")
+		builder.WriteString(annotations[key])
+	}
+
+	return builder.String()
 }
