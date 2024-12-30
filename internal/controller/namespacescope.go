@@ -17,11 +17,14 @@ limitations under the License.
 package controller
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"maps"
 	"slices"
 	"strings"
+	"text/template"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -38,19 +41,35 @@ const (
 	lastAppliedAnnotations = "scribe.anza-labs.dev/last-applied-annotations"
 )
 
+var ErrSkipReconciliation = errors.New("skip reconciliation")
+
 // lister is an interface that defines the listObjects method which returns a list of namespaced names.
-type lister interface {
+type getLister interface {
+	Get(context.Context, client.ObjectKey, client.Object, ...client.GetOption) error
 	listObjects(context.Context, string) ([]types.NamespacedName, error)
 }
 
 // mapFunc returns a function that triggers a reconcile request based on the provided lister.
 // It logs the namespace details and returns reconcile requests for each object in the namespace.
-func mapFunc(l lister) func(ctx context.Context, obj client.Object) []reconcile.Request {
+func mapFunc(l getLister) func(ctx context.Context, obj client.Object) []reconcile.Request {
 	return func(ctx context.Context, obj client.Object) []reconcile.Request {
+		ns := &corev1.Namespace{}
+
 		log := log.FromContext(ctx,
-			"group_version_kind", (&corev1.Namespace{}).GroupVersionKind(),
+			"group_version_kind", ns.GroupVersionKind(),
 			"namespaced_name", klog.KObj(obj),
 		)
+
+		err := l.Get(ctx, types.NamespacedName{Namespace: obj.GetNamespace(), Name: obj.GetName()}, ns)
+		if err != nil {
+			log.V(0).Error(err, "Unable to get namespace to trigger reconcile")
+			return nil
+		}
+
+		if _, ok := ns.Annotations[annotations]; !ok {
+			log.V(3).Info("Skipping unmanaged namespace")
+			return nil
+		}
 
 		namespace := obj.GetName()
 
@@ -93,6 +112,7 @@ func NewNamespaceScope(c client.Client, ns string) *NamespaceScope {
 func (ss *NamespaceScope) UpdateAnnotations(
 	ctx context.Context,
 	objAnnotations map[string]string,
+	object map[string]any,
 ) (map[string]string, error) {
 	ns := &corev1.Namespace{}
 
@@ -100,9 +120,23 @@ func (ss *NamespaceScope) UpdateAnnotations(
 		return nil, fmt.Errorf("unable to get namespace: %w", err)
 	}
 
+	tpl, err := template.New("").Parse(ns.Annotations[annotations])
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse template: %w", err)
+	}
+
+	buf := new(bytes.Buffer)
+	err = tpl.Execute(buf, object)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute template: %w", err)
+	}
+
 	// Retrieve expected and last-applied annotations
-	expected := unmarshalAnnotations(ns.Annotations[annotations])
+	expected := unmarshalAnnotations(buf.String())
 	lastApplied := unmarshalAnnotations(objAnnotations[lastAppliedAnnotations])
+	if len(expected) == 0 && len(lastApplied) == 0 {
+		return nil, ErrSkipReconciliation
+	}
 
 	// Calculate the resulting annotations
 	results := make(map[string]string)
@@ -123,6 +157,7 @@ func (ss *NamespaceScope) UpdateAnnotations(
 	final := make(map[string]string)
 	maps.Copy(final, results)
 	delete(results, lastAppliedAnnotations)
+
 	final[lastAppliedAnnotations] = marshalAnnotations(results)
 
 	return final, nil

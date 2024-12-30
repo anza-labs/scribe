@@ -18,7 +18,9 @@ package controller
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"reflect"
 
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -71,12 +73,23 @@ func (r *UnstructuredReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	nss := NewNamespaceScope(r.Client, req.Namespace)
 
-	ann, err := nss.UpdateAnnotations(ctx, u.GetAnnotations())
+	ann, err := nss.UpdateAnnotations(ctx, u.GetAnnotations(), u.Object)
 	if err != nil {
+		if errors.Is(err, ErrSkipReconciliation) {
+			log.V(2).Info("Ignoring unmanaged object")
+			return ctrl.Result{}, nil
+		}
+
 		return ctrl.Result{}, fmt.Errorf("failed to update the annotation map: %w", err)
 	}
 
+	original := u.DeepCopy()
 	u.SetAnnotations(ann)
+
+	if reflect.DeepEqual(original.GetAnnotations(), u.GetAnnotations()) {
+		log.V(2).Info("Nothing to do, skipping")
+		return ctrl.Result{}, nil
+	}
 
 	if err := r.Update(ctx, u); err != nil {
 		return ctrl.Result{}, fmt.Errorf("failed to update annotations on object: %w", err)

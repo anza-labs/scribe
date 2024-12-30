@@ -21,13 +21,16 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 func TestUpdateAnnotations(t *testing.T) {
@@ -38,13 +41,27 @@ func TestUpdateAnnotations(t *testing.T) {
 
 	for name, tc := range map[string]struct {
 		// Input parameters
-		objAnnotations       map[string]string
+		object               *corev1.Pod
 		namespaceAnnotations map[string]string
 		// Expected output
 		expectedResult map[string]string
+		expectedError  error
 	}{
+		"empty": {
+			object: &corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{},
+				},
+			},
+			namespaceAnnotations: map[string]string{},
+			expectedError:        ErrSkipReconciliation,
+		},
 		"add annotations": {
-			objAnnotations: map[string]string{},
+			object: &corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{},
+				},
+			},
 			namespaceAnnotations: map[string]string{
 				annotations: marshalAnnotations(map[string]string{
 					"key1": "value1",
@@ -57,12 +74,35 @@ func TestUpdateAnnotations(t *testing.T) {
 				}),
 			},
 		},
-		"append annotations": {
-			objAnnotations: map[string]string{
-				"key1": "value1",
-				lastAppliedAnnotations: marshalAnnotations(map[string]string{
-					"key1": "value1",
+		"add annotations with template": {
+			object: &corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:        "test-pod",
+					Annotations: map[string]string{},
+				},
+			},
+			namespaceAnnotations: map[string]string{
+				annotations: marshalAnnotations(map[string]string{
+					"key1": "{{ .metadata.name }}",
 				}),
+			},
+			expectedResult: map[string]string{
+				"key1": "test-pod",
+				lastAppliedAnnotations: marshalAnnotations(map[string]string{
+					"key1": "test-pod",
+				}),
+			},
+		},
+		"append annotations": {
+			object: &corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{
+						"key1": "value1",
+						lastAppliedAnnotations: marshalAnnotations(map[string]string{
+							"key1": "value1",
+						}),
+					},
+				},
 			},
 			namespaceAnnotations: map[string]string{
 				annotations: marshalAnnotations(map[string]string{
@@ -80,13 +120,17 @@ func TestUpdateAnnotations(t *testing.T) {
 			},
 		},
 		"remove annotations": {
-			objAnnotations: map[string]string{
-				"key1": "value1",
-				"key2": "value2",
-				lastAppliedAnnotations: marshalAnnotations(map[string]string{
-					"key1": "value1",
-					"key2": "value2",
-				}),
+			object: &corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{
+						"key1": "value1",
+						"key2": "value2",
+						lastAppliedAnnotations: marshalAnnotations(map[string]string{
+							"key1": "value1",
+							"key2": "value2",
+						}),
+					},
+				},
 			},
 			namespaceAnnotations: map[string]string{
 				annotations: marshalAnnotations(map[string]string{
@@ -101,13 +145,17 @@ func TestUpdateAnnotations(t *testing.T) {
 			},
 		},
 		"update annotations": {
-			objAnnotations: map[string]string{
-				"key1": "value1",
-				"key2": "old-value",
-				lastAppliedAnnotations: marshalAnnotations(map[string]string{
-					"key1": "value1",
-					"key2": "old-value",
-				}),
+			object: &corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{
+						"key1": "value1",
+						"key2": "old-value",
+						lastAppliedAnnotations: marshalAnnotations(map[string]string{
+							"key1": "value1",
+							"key2": "old-value",
+						}),
+					},
+				},
 			},
 			namespaceAnnotations: map[string]string{
 				annotations: marshalAnnotations(map[string]string{
@@ -141,9 +189,12 @@ func TestUpdateAnnotations(t *testing.T) {
 
 			nss := NewNamespaceScope(fakeClient, "test-namespace")
 
-			result, err := nss.UpdateAnnotations(context.Background(), tc.objAnnotations)
+			unstructuredObj, err := runtime.DefaultUnstructuredConverter.ToUnstructured(tc.object)
+			require.NoError(t, err)
 
-			assert.NoError(t, err)
+			result, err := nss.UpdateAnnotations(context.Background(), tc.object.ObjectMeta.Annotations, unstructuredObj)
+
+			assert.ErrorIs(t, err, tc.expectedError)
 			assert.Equal(t, tc.expectedResult, result)
 		})
 	}
@@ -213,6 +264,86 @@ func TestMarshalAnnotations(t *testing.T) {
 			t.Parallel()
 			result := marshalAnnotations(tc.input)
 			assert.Equal(t, tc.expected, result)
+		})
+	}
+}
+
+func TestMapFunc(t *testing.T) {
+	t.Parallel()
+
+	scheme := runtime.NewScheme()
+	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
+
+	for name, tc := range map[string]struct {
+		namespaceAnnotations map[string]string
+		expectedRequests     []reconcile.Request
+	}{
+		"managed namespace with objects": {
+			namespaceAnnotations: map[string]string{
+				annotations: "key=value",
+			},
+			expectedRequests: []reconcile.Request{
+				{NamespacedName: types.NamespacedName{Namespace: "test-namespace", Name: "pod1"}},
+				{NamespacedName: types.NamespacedName{Namespace: "test-namespace", Name: "pod2"}},
+			},
+		},
+		"unmanaged namespace": {
+			namespaceAnnotations: map[string]string{},
+			expectedRequests:     nil,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			// Setup the fake client
+			fakeClient := fake.NewClientBuilder().
+				WithScheme(scheme).
+				WithObjects(
+					&corev1.Namespace{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:        "test-namespace",
+							Namespace:   "test-namespace",
+							Annotations: tc.namespaceAnnotations,
+						},
+					},
+					&corev1.Pod{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "pod1",
+							Namespace: "test-namespace",
+						},
+					},
+					&corev1.Pod{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "pod2",
+							Namespace: "test-namespace",
+						},
+					},
+				).
+				Build()
+
+			// Create a mock lister
+			lister := &UnstructuredReconciler{
+				Client: fakeClient,
+				Scheme: scheme,
+				gvk:    corev1.SchemeGroupVersion.WithKind("Pod"),
+			}
+
+			// Create the map function
+			mapFn := mapFunc(lister)
+
+			// Create a test object to pass to the map function
+			testObject := &corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-namespace",
+					Namespace: "test-namespace",
+				},
+			}
+
+			// Call the map function
+			requests := mapFn(context.Background(), testObject)
+
+			// Verify the results
+			assert.ElementsMatch(t, tc.expectedRequests, requests)
 		})
 	}
 }
