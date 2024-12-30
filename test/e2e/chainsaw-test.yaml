@@ -49,4 +49,5 @@ spec:
           metadata:
             name: test
             annotations:
+              scribe.anza-labs.dev/last-applied-annotations: foo=bar
               foo: bar
