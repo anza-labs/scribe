@@ -23,7 +23,9 @@ spec:
           metadata:
             name: ($namespace)
             annotations:
-              scribe.anza-labs.dev/annotations: foo=bar
+              scribe.anza-labs.dev/annotations: |
+                foo=bar,
+                obj.name={{ .metadata.name }}
     - apply:
         resource:
           apiVersion: apps/v1
@@ -49,5 +51,8 @@ spec:
           metadata:
             name: test
             annotations:
-              scribe.anza-labs.dev/last-applied-annotations: foo=bar
+              scribe.anza-labs.dev/last-applied-annotations: |-
+                foo=bar,
+                obj.name=test
               foo: bar
+              obj.name: test

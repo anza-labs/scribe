@@ -1,6 +1,8 @@
 # Image URL to use all building/pushing image targets
-IMG ?= ghcr.io/anza-labs/scribe:main
-PLATFORM ?= linux/$(shell go env GOARCH)
+REPOSITORY    ?= localhost:5005
+TAG           ?= dev-$(shell git describe --match='' --always --abbrev=6 --dirty)
+IMG           ?= $(REPOSITORY)/scribe:$(TAG)
+PLATFORM      ?= linux/$(shell go env GOARCH)
 CHAINSAW_ARGS ?=
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
@@ -108,11 +110,11 @@ endif
 
 .PHONY: cluster
 cluster: kind ctlptl
-	$(CTLPTL) apply -f hack/kind.yaml
+	@PATH=${LOCALBIN}:$(PATH) $(CTLPTL) apply -f hack/kind.yaml
 
 .PHONY: cluster-reset
 cluster-reset: kind ctlptl
-	$(CTLPTL) delete -f hack/kind.yaml
+	@PATH=${LOCALBIN}:$(PATH) $(CTLPTL) delete -f hack/kind.yaml
 
 .PHONY: deploy
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
@@ -131,21 +133,21 @@ $(LOCALBIN):
 	mkdir -p $(LOCALBIN)
 
 ## Tool Binaries
-KUBECTL ?= kubectl
-CHAINSAW ?= $(LOCALBIN)/chainsaw
+KUBECTL        ?= kubectl
+CHAINSAW       ?= $(LOCALBIN)/chainsaw
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
-CTLPTL ?= $(LOCALBIN)/ctlptl
-KIND ?= $(LOCALBIN)/kind
-KUSTOMIZE ?= $(LOCALBIN)/kustomize
-GOLANGCI_LINT ?= $(LOCALBIN)/golangci-lint
+CTLPTL         ?= $(LOCALBIN)/ctlptl
+KIND           ?= $(LOCALBIN)/kind
+KUSTOMIZE      ?= $(LOCALBIN)/kustomize
+GOLANGCI_LINT  ?= $(LOCALBIN)/golangci-lint
 
 ## Tool Versions
-CHAINSAW_VERSION ?= $(shell grep 'github.com/kyverno/chainsaw ' ./go.mod | cut -d ' ' -f 2)
-CONTROLLER_TOOLS_VERSION ?= $(shell grep 'sigs.k8s.io/controller-tools ' ./go.mod | cut -d ' ' -f 2)
-CTLPTL_VERSION ?= $(shell grep 'github.com/tilt-dev/ctlptl ' ./go.mod | cut -d ' ' -f 2)
-GOLANGCI_LINT_VERSION ?= $(shell grep 'github.com/golangci/golangci-lint ' ./go.mod | cut -d ' ' -f 2)
-KIND_VERSION ?= $(shell grep 'sigs.k8s.io/kind ' ./go.mod | cut -d ' ' -f 2)
-KUSTOMIZE_VERSION ?= $(shell grep 'sigs.k8s.io/kustomize/kustomize/v5 ' ./go.mod | cut -d ' ' -f 2)
+CHAINSAW_VERSION         ?= $(shell grep 'github.com/kyverno/chainsaw '        ./go.mod | cut -d ' ' -f 2)
+CONTROLLER_TOOLS_VERSION ?= $(shell grep 'sigs.k8s.io/controller-tools '       ./go.mod | cut -d ' ' -f 2)
+CTLPTL_VERSION           ?= $(shell grep 'github.com/tilt-dev/ctlptl '         ./go.mod | cut -d ' ' -f 2)
+GOLANGCI_LINT_VERSION    ?= $(shell grep 'github.com/golangci/golangci-lint '  ./go.mod | cut -d ' ' -f 2)
+KIND_VERSION             ?= $(shell grep 'sigs.k8s.io/kind '                   ./go.mod | cut -d ' ' -f 2)
+KUSTOMIZE_VERSION        ?= $(shell grep 'sigs.k8s.io/kustomize/kustomize/v5 ' ./go.mod | cut -d ' ' -f 2)
 
 .PHONY: chainsaw
 chainsaw: $(CHAINSAW)-$(CHAINSAW_VERSION) ## Download chainsaw locally if necessary.

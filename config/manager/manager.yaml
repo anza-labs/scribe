@@ -52,6 +52,7 @@ spec:
       - command:
         - /manager
         args:
+        - --v=4
         - --leader-elect
         - --health-probe-bind-address=:8081
         - --config-path=/etc/scribe/config.yaml

@@ -30,6 +30,21 @@ metadata:
 
 This ensures all resources in the `reloader-example` namespace will inherit the specified annotation, allowing for seamless automation and consistency across deployments.
 
+In addition to propagating static annotations, Scribe also supports annotation templating. This allows for more dynamic and flexible annotations, where values are injected based on the metadata of the observed resources.
+
+For example, you could set a template annotation that injects the resource's name into the annotation, like so:
+
+```yaml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: reloader-example
+  annotations:
+    scribe.anza-labs.dev/annotations: |
+      object.name={{ .metadata.name }}
+```
+
 ## Installation
 
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/anza-labs)](https://artifacthub.io/packages/search?repo=anza-labs)
