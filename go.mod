@@ -19,7 +19,7 @@ require (
 	github.com/golangci/golangci-lint v1.62.2
 	github.com/kyverno/chainsaw v0.2.12
 	github.com/tilt-dev/ctlptl v0.8.37
-	sigs.k8s.io/controller-tools v0.16.5
+	sigs.k8s.io/controller-tools v0.17.0
 	sigs.k8s.io/kind v0.26.0
 	sigs.k8s.io/kustomize/kustomize/v5 v5.5.0
 )
@@ -27,7 +27,7 @@ require (
 require (
 	4d63.com/gocheckcompilerdirectives v1.2.1 // indirect
 	4d63.com/gochecknoglobals v0.2.1 // indirect
-	cel.dev/expr v0.16.1 // indirect
+	cel.dev/expr v0.18.0 // indirect
 	cloud.google.com/go v0.115.1 // indirect
 	cloud.google.com/go/auth v0.9.7 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.4 // indirect
@@ -40,7 +40,7 @@ require (
 	github.com/Antonboom/errname v1.0.0 // indirect
 	github.com/Antonboom/nilnil v1.0.0 // indirect
 	github.com/Antonboom/testifylint v1.5.2 // indirect
-	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
+	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
 	github.com/BurntSushi/toml v1.4.1-0.20240526193622-a339e1f7089c // indirect
 	github.com/Crocmagnon/fatcontext v0.5.3 // indirect
 	github.com/Djarvur/go-err113 v0.0.0-20210108212216-aea10b59be24 // indirect
@@ -152,7 +152,7 @@ require (
 	github.com/golangci/revgrep v0.5.3 // indirect
 	github.com/golangci/unconvert v0.0.0-20240309020433-c5143eacb3ed // indirect
 	github.com/google/btree v1.1.3 // indirect
-	github.com/google/cel-go v0.21.0 // indirect
+	github.com/google/cel-go v0.22.0 // indirect
 	github.com/google/gnostic-models v0.6.9-0.20230804172637-c7be7c783f49 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
@@ -317,9 +317,9 @@ require (
 	gitlab.com/bosi/decorder v0.4.2 // indirect
 	go-simpler.org/musttag v0.13.0 // indirect
 	go-simpler.org/sloglint v0.7.2 // indirect
-	go.etcd.io/etcd/api/v3 v3.5.15 // indirect
-	go.etcd.io/etcd/client/pkg/v3 v3.5.15 // indirect
-	go.etcd.io/etcd/client/v3 v3.5.15 // indirect
+	go.etcd.io/etcd/api/v3 v3.5.16 // indirect
+	go.etcd.io/etcd/client/pkg/v3 v3.5.16 // indirect
+	go.etcd.io/etcd/client/v3 v3.5.16 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/detectors/gcp v1.29.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.55.0 // indirect
@@ -336,18 +336,18 @@ require (
 	go.uber.org/automaxprocs v1.6.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
-	golang.org/x/crypto v0.29.0 // indirect
+	golang.org/x/crypto v0.31.0 // indirect
 	golang.org/x/exp v0.0.0-20241004190924-225e2abe05e6 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20241108190413-2d47ceb2692f // indirect
 	golang.org/x/mod v0.22.0 // indirect
-	golang.org/x/net v0.31.0 // indirect
+	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/oauth2 v0.23.0 // indirect
-	golang.org/x/sync v0.9.0 // indirect
-	golang.org/x/sys v0.27.0 // indirect
-	golang.org/x/term v0.26.0 // indirect
-	golang.org/x/text v0.20.0 // indirect
+	golang.org/x/sync v0.10.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/term v0.27.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/time v0.7.0 // indirect
-	golang.org/x/tools v0.27.0 // indirect
+	golang.org/x/tools v0.28.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	google.golang.org/api v0.199.0 // indirect
 	google.golang.org/genproto v0.0.0-20241007155032-5fefd90f89a9 // indirect
@@ -363,15 +363,15 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	honnef.co/go/tools v0.5.1 // indirect
-	k8s.io/apiextensions-apiserver v0.31.3 // indirect
-	k8s.io/apiserver v0.31.3 // indirect
+	k8s.io/apiextensions-apiserver v0.32.0 // indirect
+	k8s.io/apiserver v0.32.0 // indirect
 	k8s.io/cli-runtime v0.31.0 // indirect
-	k8s.io/component-base v0.31.3 // indirect
+	k8s.io/component-base v0.32.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20241105132330-32ad38e42d3f // indirect
 	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738 // indirect
 	mvdan.cc/gofumpt v0.7.0 // indirect
 	mvdan.cc/unparam v0.0.0-20240528143540-8a5130ca722f // indirect
-	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.30.3 // indirect
+	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.31.0 // indirect
 	sigs.k8s.io/json v0.0.0-20241010143419-9aa6b5e7a4b3 // indirect
 	sigs.k8s.io/kubectl-validate v0.0.5-0.20240827210056-ce13d95db263 // indirect
 	sigs.k8s.io/kustomize/api v0.18.0 // indirect
