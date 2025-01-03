@@ -149,8 +149,9 @@ func main() {
 		t := t
 
 		if err = (&controller.UnstructuredReconciler{
-			Client: mgr.GetClient(),
-			Scheme: mgr.GetScheme(),
+			Client:   mgr.GetClient(),
+			Scheme:   mgr.GetScheme(),
+			Recorder: mgr.GetEventRecorderFor(t.GroupVersionKind().String()),
 		}).SetupWithManager(mgr, t.GroupVersionKind()); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "Unstructured")
 			os.Exit(1)

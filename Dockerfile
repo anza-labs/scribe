@@ -22,7 +22,7 @@ COPY internal/ internal/
 
 # Build
 ENV CGO_ENABLED=0
-RUN xx-go build -a -o manager cmd/main.go && \
+RUN xx-go build -trimpath -a -o manager cmd/main.go && \
     xx-verify manager
 
 # Use distroless as minimal base image to package the manager binary
