@@ -5,6 +5,7 @@ go 1.23.0
 toolchain go1.23.4
 
 require (
+	github.com/prometheus/client_golang v1.20.4
 	github.com/stretchr/testify v1.10.0
 	k8s.io/api v0.32.0
 	k8s.io/apimachinery v0.32.0
@@ -16,7 +17,7 @@ require (
 
 // tools
 require (
-	github.com/golangci/golangci-lint v1.63.3
+	github.com/golangci/golangci-lint v1.63.4
 	github.com/kyverno/chainsaw v0.2.12
 	github.com/tilt-dev/ctlptl v0.8.37
 	sigs.k8s.io/controller-tools v0.17.0
@@ -251,7 +252,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/polyfloyd/go-errorlint v1.7.0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20220216144756-c35f1ee13d7c // indirect
-	github.com/prometheus/client_golang v1.20.4 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.60.1 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
