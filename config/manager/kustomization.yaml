@@ -8,4 +8,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: localhost:5005/scribe
-  newTag: dev-892180-dirty
+  newTag: dev-e31ea2

@@ -1,5 +1,5 @@
 /*
-Copyright 2024 anza-labs contributors.
+Copyright 2024-2025 anza-labs contributors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ import (
 	"text/template"
 
 	corev1 "k8s.io/api/core/v1"
+	apivalidation "k8s.io/apimachinery/pkg/api/validation"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -93,16 +95,18 @@ func mapFunc(l getLister) func(ctx context.Context, obj client.Object) []reconci
 // It contains the client to interact with the Kubernetes API and the namespace name.
 type NamespaceScope struct {
 	client.Client
-	namespace types.NamespacedName
+	namespace *corev1.Namespace
 }
 
 // NewNamespaceScope creates a new instance of NamespaceScope for the given namespace name.
 func NewNamespaceScope(c client.Client, ns string) *NamespaceScope {
 	return &NamespaceScope{
 		Client: c,
-		namespace: types.NamespacedName{
-			Namespace: ns,
-			Name:      ns,
+		namespace: &corev1.Namespace{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: ns,
+				Name:      ns,
+			},
 		},
 	}
 }
@@ -114,13 +118,11 @@ func (ss *NamespaceScope) UpdateAnnotations(
 	objAnnotations map[string]string,
 	object map[string]any,
 ) (map[string]string, error) {
-	ns := &corev1.Namespace{}
-
-	if err := ss.Get(ctx, ss.namespace, ns); err != nil {
+	if err := ss.Get(ctx, client.ObjectKeyFromObject(ss.namespace), ss.namespace); err != nil {
 		return nil, fmt.Errorf("unable to get namespace: %w", err)
 	}
 
-	tpl, err := template.New("").Parse(ns.Annotations[annotations])
+	tpl, err := template.New("").Parse(ss.namespace.Annotations[annotations])
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse template: %w", err)
 	}
@@ -159,6 +161,11 @@ func (ss *NamespaceScope) UpdateAnnotations(
 	delete(results, lastAppliedAnnotations)
 
 	final[lastAppliedAnnotations] = marshalAnnotations(results)
+
+	err = apivalidation.ValidateAnnotationsSize(final)
+	if err != nil {
+		return nil, fmt.Errorf("size validation failed: %w", err)
+	}
 
 	return final, nil
 }

@@ -1,5 +1,5 @@
 /*
-Copyright 2024 anza-labs contributors.
+Copyright 2024-2025 anza-labs contributors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,12 +22,15 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/prometheus/client_golang/prometheus"
+
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/tools/record"
 	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -35,11 +38,14 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
+// +kubebuilder:rbac:groups="",resources=events,verbs=create;patch
+
 // UnstructuredReconciler reconciles a Unstructured object
 type UnstructuredReconciler struct {
 	client.Client
-	gvk    schema.GroupVersionKind
-	Scheme *runtime.Scheme
+	gvk      schema.GroupVersionKind
+	Scheme   *runtime.Scheme
+	Recorder record.EventRecorder
 }
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
@@ -81,6 +87,17 @@ func (r *UnstructuredReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		}
 
 		return ctrl.Result{}, fmt.Errorf("failed to update the annotation map: %w", err)
+	}
+
+	ann, validationErrors := ValidateAnnotations(ann)
+	if validationErrors != nil {
+		validationErrorsCounter.With(prometheus.Labels{"source_namespace": req.Namespace}).Inc()
+
+		log.V(1).Error(validationErrors, "Validation error")
+		r.Recorder.Event(nss.namespace, corev1.EventTypeWarning, AnnotationValidationFailure, validationErrors.Message())
+		for _, err := range validationErrors.Items {
+			r.Recorder.Event(u, corev1.EventTypeWarning, AnnotationValidationFailure, err.Message())
+		}
 	}
 
 	original := u.DeepCopy()
